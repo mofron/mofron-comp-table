@@ -1,2 +1,2 @@
-# mofron-parts-table
-table component for mofron
+# mofron-comp-table
+Table Component for mofron
