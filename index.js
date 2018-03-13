@@ -3,6 +3,7 @@
  * @author simpart
  */
 let mf = require('mofron');
+let Text = require('mofron-comp-text');
 
 /**
  * @class Table
@@ -10,11 +11,11 @@ let mf = require('mofron');
  */
 mf.comp.Table = class extends mf.Component {
     
-    constructor (prm_opt) {
+    constructor (po) {
         try {
             super();
             this.name('Table');
-            this.prmOpt(prm_opt);
+            this.prmOpt(po);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -23,95 +24,125 @@ mf.comp.Table = class extends mf.Component {
     
     initDomConts (prm) {
         try {
-            if (null === this.theader()) {
-                this.theader(prm);
-            }
-            let thdr  = this.theader();
-            let thlst = new Array();
+            super.initDomConts('table');
+            this.styleTgt(this.target());
+            this.eventTgt(this.target());
             
-            for (let hidx in thdr) {
-                thlst.push(
-                    new mf.Dom({
-                        tag       : 'th',
-                        component : this,
-                        text      : thdr[hidx]
-                    })
-                );
-            }
-            
-            let body = new mf.Dom({
-                tag       : 'tbody',
-                component : this
-            });
-            
-            this.vdom().addChild(
+            this.target().addChild(
                 new mf.Dom({
-                    tag      : 'table',
-                    coponent : this,
-                    child    : [
-                        new mf.Dom({
-                            tag       : 'thead',
-                            component : this,
-                            addChild  : new mf.Dom({
-                                tag       : 'tr',
-                                component : this,
-                                child     : thlst
-                            })
-                        }),
-                        body
-                    ]
+                    tag       : 'thead',
+                    component : this,
+                    addChild  : new mf.Dom('tr')
                 })
             );
-            this.target(body);
+            let tgt_tr = new mf.Dom('tr');
+            this.target().addChild(
+                new mf.Dom({
+                    tag       : 'tbody',
+                    component : this   ,
+                    addChild  : tgt_tr
+                })
+            );
+            this.target(tgt_tr);
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
     
-    theader (hdr) {
+    addChild(chd, idx, bld) {
         try {
-            if (undefined === hdr) {
+            let tp = new mf.Dom('td', this);
+            if (true === bld) {
+              tp = new mf.Dom('th', this);
+            }
+            tp.style({ 'text-align' : 'center' });
+            this.target().addChild(tp);
+            this.target(tp);
+            
+            super.addChild(chd, idx);
+            this.resetTgt();
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    colLength (prm) {
+        try {
+            if (undefined === prm) {
                 /* getter */
-                return (undefined === this.m_theader) ? null : this.m_theader;
+                return (undefined === this.m_collen) ? null : this.m_collen;
             }
             /* setter */
-            if ( (null === hdr) ||
-                 ('object' !== typeof hdr) ) {
+            if ('number' !== typeof prm) {
                 throw new Error('invalid parameter');
             }
-            this.m_theader = hdr;
+            this.m_collen = prm;
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
     
-    addChild (chd, disp, idx) {
+    head (prm) {
         try {
-            if ( (false === mf.func.isInclude(chd, 'Component')) &&
-                 ('object' !== typeof chd) ) {
+            let hdr = this.adom().child()[0].child()[0];
+            if (undefined === prm) {
+                /* getter */
+                let tr_id = hdr.child()[0].getId();
+                let chd   = this.child();
+                let ret   = new Array();
+                for (let cidx in chd) {
+                    if (tr_id === chd[cidx].target().parent().parent().parent().getId()) {
+                        ret.push(chd[cidx]);
+                    }
+                }
+                return ret;
+            }
+            /* setter */
+            if ( (null === prm) ||
+                 ('object' !== typeof prm) ) {
                 throw new Error('invalid parameter');
             }
-            if ( chd.length !== this.theader().length ) {
-                throw new Error('invalid parameter');
+            /* buffering target */
+            /* set thead contents */
+            let th = null;
+            for (let pidx in prm) {
+                this.target(hdr.child()[0]);
+                
+                if ('string' === typeof prm[pidx]) {
+                    this.addChild(new Text(prm[pidx]), undefined, true);
+                } else if (true === mf.func.isInclude(prm[pidx], 'Text')) {
+                    this.addChild(prm[idx], undefined, true);
+                } else {
+                    throw new Error('invalid parameter');
+                }
             }
-            
-            let tr = new mf.Component('tr');
-            for (let cidx in chd) {
-                tr.addChild(
-                    new mf.Component({
-                        param    : 'td',
-                        addChild : chd[cidx]
-                    })
-                );
-            }
-            super.addChild(tr);
+            /* update column length */
+            this.colLength(this.head().length);
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
     
+    resetTgt () {
+        try {
+            let bdom   = this.adom().child()[0].child()[1];
+            let cur_tr = bdom.child()[bdom.child().length-1];
+            this.target(cur_tr);
+            if ( (0 !== cur_tr.child().length) &&
+                 (cur_tr.child().length >= this.colLength()) ) {
+                let add_tr = new mf.Dom('tr');
+                bdom.addChild(add_tr);
+                this.target(add_tr);
+            }
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
 }
 module.exports = mf.comp.Table;
+/* end of file */
