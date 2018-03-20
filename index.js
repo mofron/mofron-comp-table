@@ -114,7 +114,7 @@ mf.comp.Table = class extends mf.Component {
                 if ('string' === typeof prm[pidx]) {
                     this.addChild(new Text(prm[pidx]), undefined, true);
                 } else if (true === mf.func.isInclude(prm[pidx], 'Text')) {
-                    this.addChild(prm[idx], undefined, true);
+                    this.addChild(prm[pidx], undefined, true);
                 } else {
                     throw new Error('invalid parameter');
                 }
