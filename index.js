@@ -32,10 +32,10 @@ mf.comp.Table = class extends mf.Component {
                 new mf.Dom({
                     tag       : 'thead',
                     component : this,
-                    addChild  : new mf.Dom('tr')
+                    addChild  : new mf.Dom('tr', this)
                 })
             );
-            let tgt_tr = new mf.Dom('tr');
+            let tgt_tr = new mf.Dom('tr', this);
             this.target().addChild(
                 new mf.Dom({
                     tag       : 'tbody',
@@ -52,12 +52,13 @@ mf.comp.Table = class extends mf.Component {
     
     addChild(chd, idx, bld) {
         try {
-            let tp = new mf.Dom('td', this);
-            if (true === bld) {
-              tp = new mf.Dom('th', this);
-            }
+            let tp = (true !== bld) ? new mf.Dom('td', this) : new mf.Dom('th', this);
             tp.style({ 'text-align' : 'center' });
+            
             this.target().addChild(tp);
+            if (true === this.target().isPushed()) {
+                tp.pushDom(this.target());
+            }
             this.target(tp);
             
             super.addChild(chd, idx);
@@ -134,8 +135,12 @@ mf.comp.Table = class extends mf.Component {
             this.target(cur_tr);
             if ( (0 !== cur_tr.child().length) &&
                  (cur_tr.child().length >= this.colLength()) ) {
-                let add_tr = new mf.Dom('tr');
+                let add_tr = new mf.Dom('tr', this);
                 bdom.addChild(add_tr);
+                if (true === bdom.isPushed()) {
+                    add_tr.pushDom(bdom);
+                }
+                
                 this.target(add_tr);
             }
         } catch (e) {
