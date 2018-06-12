@@ -55,6 +55,7 @@ mf.comp.Table = class extends mf.Component {
             let tp = (true !== bld) ? new mf.Dom('td', this) : new mf.Dom('th', this);
             tp.style({ 'text-align' : 'center' });
             
+            this.target().style({'display' : null});
             this.target().addChild(tp);
             if (true === this.target().isPushed()) {
                 tp.pushDom(this.target());
@@ -135,13 +136,63 @@ mf.comp.Table = class extends mf.Component {
             this.target(cur_tr);
             if ( (0 !== cur_tr.child().length) &&
                  (cur_tr.child().length >= this.colLength()) ) {
-                let add_tr = new mf.Dom('tr', this);
+                let add_tr = new mf.Dom({
+                    tag       : 'tr',
+                    component :  this,
+                    style     : { 'display' : 'none' }
+                });
+                if (null !== this.rowHeight()) {
+                    add_tr.style({ 'height' : this.rowHeight() + 'px' });
+                }
                 bdom.addChild(add_tr);
                 if (true === bdom.isPushed()) {
                     add_tr.pushDom(bdom);
                 }
                 
                 this.target(add_tr);
+            }
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    rowHeight (val) {
+        try {
+            if (undefined === val) {
+                 /* getter */
+                 return (undefined === this.m_rowheight) ? null : this.m_rowheight;
+            }
+            /* setter */
+            if ('number' !== typeof val) {
+                throw new Error('invalid parameter');
+            }
+            this.m_rowheight = val;
+            let tr_lst = this.target().parent().child();
+            
+            for (let tr_idx in tr_lst) {
+                tr_lst[tr_idx].style({ 'height' : val + 'px' });
+            }
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    height (prm) {
+        try {
+            let tr_lst = this.target().parent().child();
+            if (undefined === prm) {
+                /* getter */
+                if ((0 === tr_lst.length) || (null === this.rowHeight())) {
+                    return super.height();
+                } else {
+                    return this.rowHeight() * tr_lst.length;
+                }
+            }
+            /* setter */
+            if ((0 !== tr_lst.length) && ('number' === typeof prm)) {
+                this.rowHeight(prm/tr_lst.length);
             }
         } catch (e) {
             console.error(e.stack);
