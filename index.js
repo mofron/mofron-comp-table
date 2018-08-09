@@ -2,8 +2,8 @@
  * @file mofron-comp-table/index.js
  * @author simpart
  */
-let mf = require('mofron');
-let Text = require('mofron-comp-text');
+const mf = require('mofron');
+const Text = require('mofron-comp-text');
 
 /**
  * @class Table
@@ -36,18 +36,23 @@ mf.comp.Table = class extends mf.Component {
                 })
             );
             let tgt_tr = new mf.Dom('tr', this);
-            this.target().addChild(
-                new mf.Dom({
-                    tag       : 'tbody',
-                    component : this   ,
-                    addChild  : tgt_tr
-                })
-            );
+            this.getTbody().addChild(tgt_tr);
+            this.target().addChild(this.getTbody());
             this.target(tgt_tr);
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
+    }
+    
+    getTbody () {
+        if (undefined === this.m_tbody) {
+            this.m_tbody = new mf.Dom({
+                tag       : 'tbody',
+                component : this
+            });
+        }
+        return this.m_tbody
     }
     
     addChild(chd, idx, bld) {
@@ -142,7 +147,7 @@ mf.comp.Table = class extends mf.Component {
                     style     : { 'display' : 'none' }
                 });
                 if (null !== this.rowHeight()) {
-                    add_tr.style({ 'height' : this.rowHeight() + 'px' });
+                    add_tr.style({ 'height' : this.rowHeight() + 'rem' });
                 }
                 bdom.addChild(add_tr);
                 if (true === bdom.isPushed()) {
@@ -171,7 +176,7 @@ mf.comp.Table = class extends mf.Component {
             let tr_lst = this.target().parent().child();
             
             for (let tr_idx in tr_lst) {
-                tr_lst[tr_idx].style({ 'height' : val + 'px' });
+                tr_lst[tr_idx].style({ 'height' : val + 'rem' });
             }
         } catch (e) {
             console.error(e.stack);
@@ -193,6 +198,24 @@ mf.comp.Table = class extends mf.Component {
             /* setter */
             if ((0 !== tr_lst.length) && ('number' === typeof prm)) {
                 this.rowHeight(prm/tr_lst.length);
+            }
+        } catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    width (prm) {
+        try {
+            let td_lst = this.getTbody().child()[0].child();
+            let size   = mofron.func.getSize(
+                ('string' === prm) ? prm : (prm + '') + this.sizeType()
+            );
+            let set_wid = size[0] / td_lst.length;
+            for (let td_idx in td_lst) {
+                td_lst[td_idx].style({
+                    'width' : set_wid + size[1]
+                });
             }
         } catch (e) {
             console.error(e.stack);
