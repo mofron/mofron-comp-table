@@ -2,7 +2,7 @@
  * @file mofron-comp-table/index.js
  * @author simpart
  */
-const mf = require('mofron');
+const mf   = require('mofron');
 const Text = require('mofron-comp-text');
 
 /**
@@ -22,7 +22,7 @@ mf.comp.Table = class extends mf.Component {
         }
     }
     
-    initDomConts (prm) {
+    initDomConts () {
         try {
             super.initDomConts('table');
             this.styleTgt(this.target());
@@ -147,7 +147,7 @@ mf.comp.Table = class extends mf.Component {
                     style     : { 'display' : 'none' }
                 });
                 if (null !== this.rowHeight()) {
-                    add_tr.style({ 'height' : this.rowHeight() + 'rem' });
+                    add_tr.style({ 'height' : this.rowHeight().toString() });
                 }
                 bdom.addChild(add_tr);
                 if (true === bdom.isPushed()) {
@@ -169,14 +169,11 @@ mf.comp.Table = class extends mf.Component {
                  return (undefined === this.m_rowheight) ? null : this.m_rowheight;
             }
             /* setter */
-            if ('number' !== typeof val) {
-                throw new Error('invalid parameter');
-            }
-            this.m_rowheight = val;
+            this.m_rowheight = mf.func.getSizeObj(val);
             let tr_lst = this.target().parent().child();
             
             for (let tr_idx in tr_lst) {
-                tr_lst[tr_idx].style({ 'height' : val + 'rem' });
+                tr_lst[tr_idx].style({ 'height' : val });
             }
         } catch (e) {
             console.error(e.stack);
@@ -192,12 +189,15 @@ mf.comp.Table = class extends mf.Component {
                 if ((0 === tr_lst.length) || (null === this.rowHeight())) {
                     return super.height();
                 } else {
-                    return this.rowHeight() * tr_lst.length;
+                    return mf.func.getSizeObj(
+                        (this.rowHeight().value() * tr_lst.length) + this.rowHeight().type()
+                    );
                 }
             }
             /* setter */
-            if ((0 !== tr_lst.length) && ('number' === typeof prm)) {
-                this.rowHeight(prm/tr_lst.length);
+            if (0 !== tr_lst.length) {
+                let set_prm = mf.func.getSizeObj(prm);
+                this.rowHeight((set_prm.value() / tr_lst.length) + set_prm.type());
             }
         } catch (e) {
             console.error(e.stack);
@@ -207,14 +207,11 @@ mf.comp.Table = class extends mf.Component {
     
     width (prm) {
         try {
-            let td_lst = this.getTbody().child()[0].child();
-            let size   = mofron.func.getSize(
-                ('string' === prm) ? prm : (prm + '') + this.sizeType()
-            );
-            let set_wid = size[0] / td_lst.length;
+            let td_lst  = this.getTbody().child()[0].child();
+            let set_prm = mofron.func.getSizeObj(prm);
             for (let td_idx in td_lst) {
                 td_lst[td_idx].style({
-                    'width' : set_wid + size[1]
+                    'width' : (set_prm.value() / td_lst.length) + set_prm.type()
                 });
             }
         } catch (e) {
