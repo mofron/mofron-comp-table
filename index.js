@@ -169,7 +169,7 @@ mf.comp.Table = class extends mf.Component {
                  return (undefined === this.m_rowheight) ? null : this.m_rowheight;
             }
             /* setter */
-            this.m_rowheight = mf.func.getSizeObj(val);
+            this.m_rowheight = mf.func.getSize(val);
             let tr_lst = this.target().parent().child();
             
             for (let tr_idx in tr_lst) {
@@ -189,14 +189,14 @@ mf.comp.Table = class extends mf.Component {
                 if ((0 === tr_lst.length) || (null === this.rowHeight())) {
                     return super.height();
                 } else {
-                    return mf.func.getSizeObj(
+                    return mf.func.getSize(
                         (this.rowHeight().value() * tr_lst.length) + this.rowHeight().type()
-                    );
+                    ).toString();
                 }
             }
             /* setter */
             if (0 !== tr_lst.length) {
-                let set_prm = mf.func.getSizeObj(prm);
+                let set_prm = mf.func.getSize(prm);
                 this.rowHeight((set_prm.value() / tr_lst.length) + set_prm.type());
             }
         } catch (e) {
@@ -207,8 +207,12 @@ mf.comp.Table = class extends mf.Component {
     
     width (prm) {
         try {
+            this.adom().child()[0].style({
+                'width' : mf.func.getSize(prm).toString()
+            });
+            
             let td_lst  = this.getTbody().child()[0].child();
-            let set_prm = mofron.func.getSizeObj(prm);
+            let set_prm = mofron.func.getSize(prm);
             for (let td_idx in td_lst) {
                 td_lst[td_idx].style({
                     'width' : (set_prm.value() / td_lst.length) + set_prm.type()

@@ -1,6 +1,6 @@
 {
   "name": "mofron-comp-table",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Table Component for mofron",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "front end"
   ],
   "author": "simparts",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/simpart/mofron-comp-table/issues"
   },
