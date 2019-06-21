@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/simpart/mofron-comp-table.git"
   },
+  "dependencies": {
+    "mofron-comp-text" : ""
+  },
   "keywords": [
     "front-end"
   ],

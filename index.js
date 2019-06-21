@@ -4,6 +4,7 @@
  * @author simpart
  */
 const mf   = require("mofron");
+const Text = require("mofron-comp-text");
 
 mf.comp.Table = class extends mf.Component {
     /**
@@ -205,16 +206,26 @@ mf.comp.Table = class extends mf.Component {
                 return this.m_rows;
             }
             /* setter */
+            let len = 0;
+            for (let len_idx in prm) {
+                if (len < prm[len_idx].length) {
+                    len = prm[len_idx].length;
+                }
+            }
+            
             prm = this.chkConts(prm);
             let tgt_buf = this.target();
             for (let pidx in prm) {
                 let tr = new mf.Dom("tr", this);
                 tgt_buf.addChild(tr);
-                for (let pidx2 in prm[pidx]) {
+                
+                for (let pidx2=0; pidx2 < len ;pidx2++) {
                     let td = new mf.Dom("td", this);
                     tr.addChild(td);
                     this.target(td);
-                    this.addChild(prm[pidx][pidx2]);
+                    if (undefined !== prm[pidx][pidx2]) {
+                        this.addChild(prm[pidx][pidx2]);
+                    }
                 }
             }
             this.target(tgt_buf);
