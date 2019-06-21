@@ -1,7 +1,7 @@
 {
   "name": "mofron-comp-table",
-  "version": "0.2.2",
-  "description": "Table Component for mofron",
+  "version": "0.3.0",
+  "description": "table Component for mofron",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/simpart/mofron-comp-table.git"
   },
   "keywords": [
-    "front end"
+    "front-end"
   ],
   "author": "simparts",
   "license": "MIT",
