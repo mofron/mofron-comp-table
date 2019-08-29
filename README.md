@@ -1,23 +1,22 @@
 # mofron-comp-table
 [mofron](https://mofron.github.io/mofron/) is module based frontend framework.
 
-table component for [mofron](https://mofron.github.io/mofron/).
+table component for mofron
+
 
 # Install
-
 ```
 npm install mofron mofron-comp-table
 ```
 
 # Sample
-
 ```html
 <require>
     <tag module="mofron-comp-table">Table</tag>
     <tag module="mofron-comp-text">Text</tag>
 </require>
 
-<Table border="1" frame="box" rowHeight="0.5rem">
+<Table border=1 frame=box rowHeight=0.5rem>
     <column width="1rem">
         <Text>column1-1</Text>
         <Text>column1-2</Text>
@@ -32,7 +31,7 @@ npm install mofron mofron-comp-table
     </column>
 </Table>
 
-<Table rules="rows" rowHeight="0.8rem" width="4rem">
+<Table rules=rows rowHeight=0.8rem width=4rem>
     <row>
         <Text>row1-1</Text>
         <Text>row1-2</Text>
@@ -47,18 +46,19 @@ npm install mofron mofron-comp-table
     </row>
 </Table>
 ```
-
 # Parameter
 
-| Simple<br>Param | Parameter Name     | Type                |    Description                          |
-|:---------------:|:-------------------|:--------------------|:----------------------------------------|
-|                 | head               | array/component     | head contents                           |
-|       ◯         | column             | array               | column contents                         |
-|                 | row                | array               | row contents                            |
-|                 | border             | string              | border width                            |
-|                 | frame              | string              | frame value                             |
-|                 | rules              | string              | rule value                              |
-|                 | column_width       | array               | column width                            |
-|                 | width              | strung (size)/array | table width/column width                |
-|                 | rowHeight          | string (size)       | row height                              |
+|Simple<br>Param | Parameter Name | Type | Description |
+|:--------------:|:---------------|:-----|:------------|
+| | head | mixed | component: head contents |
+| | | | array: head contents list |
+| | column | array | column contents |
+| | row | array | row contents |
+| | border | string (size) | border width |
+| | frame | string | frame type ["void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box", "border"] |
+| | rules | string | rule value ["none", "groups", "rows", "cols", "all"] |
+| | column_width | array | column width |
+| | | option | style option |
+| | width | string (size) | table size/column size |
+| | rowHeight | string (size) | row height |
 

@@ -9,7 +9,9 @@ const Text = require("mofron-comp-text");
 mf.comp.Table = class extends mf.Component {
     /**
      * initialize table component
-     *
+     * 
+     * @param (mixed) column parameter
+     *                object: component option
      * @type private
      */
     constructor (po) {
@@ -67,6 +69,7 @@ mf.comp.Table = class extends mf.Component {
     /**
      * get thead dom
      * 
+     * @param (mf.Dom) dom object
      * @return (object) thead dom 
      * @type private
      */
@@ -90,9 +93,10 @@ mf.comp.Table = class extends mf.Component {
     /**
      * head contents
      * 
-     * @param (array/component) head contents
+     * @param (mixed) component: head contents
+     *                array: head contents list
      * @return (array) head contents
-     * @type tag parameter
+     * @type parameter
      */
     head (prm) {
         try {
@@ -123,7 +127,7 @@ mf.comp.Table = class extends mf.Component {
      *
      * @param (array) column contents
      * @return (array) column contents
-     * @type tag parameter
+     * @type parameter
      */
     column (prm) {
         try {
@@ -197,7 +201,7 @@ mf.comp.Table = class extends mf.Component {
      *
      * @param (array) row contents
      * @return (array) row contents
-     * @type tag contents
+     * @type parameter
      */
     row (prm) {
         try {
@@ -299,9 +303,9 @@ mf.comp.Table = class extends mf.Component {
     /**
      * border width
      *
-     * @param (string) border width
-     * @return (string) border width
-     * @type tag parameter
+     * @param (string (size)) border width
+     * @return (string (size)) border width
+     * @type parameter
      */
     border (prm) {
         try {
@@ -317,9 +321,9 @@ mf.comp.Table = class extends mf.Component {
     /**
      * table frame type
      *
-     * @param (string) frame type
+     * @param (string) frame type ["void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box", "border"]
      * @return (string) frame type
-     * @type tag parameter
+     * @type parameter
      */
     frame (prm) {
         try {
@@ -335,9 +339,9 @@ mf.comp.Table = class extends mf.Component {
     /**
      * table inner border type
      *
-     * @param (string) rule value
+     * @param (string) rule value ["none", "groups", "rows", "cols", "all"]
      * @return (string) rule value
-     * @type tag parameter
+     * @type parameter
      */
     rules (prm) {
         try {
@@ -354,10 +358,11 @@ mf.comp.Table = class extends mf.Component {
      * column width
      *
      * @param (array) column width
-     * @type tag parameter
+     * @param (option) style option
+     * @type parameter
      */
-    column_width (prm) {
-        try { this.width(prm); } catch (e) {
+    column_width (prm, opt) {
+        try { this.width(prm,opt); } catch (e) {
             console.error(e.stack);
             throw e;
         }
@@ -366,11 +371,11 @@ mf.comp.Table = class extends mf.Component {
     /**
      * table width
      *
-     * @param (strung (size)/array) table size/column size
-     * @return (string (size)/array) table size/column size
-     * @type tag parameter
+     * @param (string (size)) table size/column size
+     * @return (string (size)) table size/column size
+     * @type parameter
      */
-    width (prm) {
+    width (prm, opt) {
         try {
             if (undefined === prm) {
                 return (undefined === this.m_width) ? null : this.m_width;
@@ -380,7 +385,7 @@ mf.comp.Table = class extends mf.Component {
                 let cols = this.target().child()[0].child();
                 if (true === Array.isArray(prm)) {
                     for (let pidx in prm) {
-                        cols[pidx].style({ width: prm[pidx] });
+                        cols[pidx].style({ width: prm[pidx] }, opt);
                     }
                 } else {
                     let siz     = mf.func.getSize(prm);
@@ -389,7 +394,7 @@ mf.comp.Table = class extends mf.Component {
                     for (let cidx in col_lst) {
                         let tds = col_lst[cidx].child();
                         for (let cidx2 in tds) {
-                            tds[cidx2].style({ width: set_siz + siz.type() });
+                            tds[cidx2].style({ width: set_siz + siz.type() }, opt);
                         }
                     }
                 }
@@ -427,7 +432,7 @@ mf.comp.Table = class extends mf.Component {
      *
      * @param (string (size)) row height
      * @return (string (size)) row height
-     * @type tag parameter
+     * @type parameter
      */
     rowHeight (prm) {
         try {
