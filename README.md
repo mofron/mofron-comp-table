@@ -46,19 +46,34 @@ npm install mofron mofron-comp-table
     </row>
 </Table>
 ```
+
 # Parameter
 
-|Simple<br>Param | Parameter Name | Type | Description |
-|:--------------:|:---------------|:-----|:------------|
-| | head | mixed | component: head contents |
-| | | | array: head contents list |
-| | column | array | column contents |
-| | row | array | row contents |
-| | border | string (size) | border width |
+| Short<br>Form | Parameter Name | Type | Description |
+|:-------------:|:---------------|:-----|:------------|
+| | beforeRender | ||
+|◯| head | array | head contents list [mofron.class.Component,..] |
+| | | | undefined: call as getter |
+| | column | mixed | mofron.class.Component: column contents  |
+| | | | array: column contents list [mofron.class.Component,..] |
+| | | | undefined: call as getter |
+| | row | mixed | mofron.class.Component: column contents  |
+| | | | array: column contents list [mofron.class.Component,..] |
+| | | | undefined: call as getter |
+| | insertType | string | insert type ("column","row") |
+| | | | undefined: call as getter |
+| | insert | array | table contents list [mofron.class.Component,..] |
+| | | number | insert index |
+| | | | undefined: insert at the end |
+| | delete | number | delete index |
+| | count | ||
+| | border | string(size) | border width |
+| | | | undefined: call as getter |
 | | frame | string | frame type ["void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box", "border"] |
 | | rules | string | rule value ["none", "groups", "rows", "cols", "all"] |
-| | column_width | array | column width |
-| | | option | style option |
+| | | | undefined: call as getter |
 | | width | string (size) | table size/column size |
-| | rowHeight | string (size) | row height |
+| | columnWidth | string(size) | column width |
+| | height | string(size) | height size |
+| | rowHeight | string(size) | row height |
 

@@ -1,6 +1,6 @@
 {
   "name": "mofron-comp-table",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "table Component for mofron",
   "main": "index.js",
   "scripts": {
@@ -8,18 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simpart/mofron-comp-table.git"
+    "url": "git+https://github.com/mofron/mofron-comp-table.git"
   },
   "dependencies": {
     "mofron-comp-text" : ""
   },
   "keywords": [
-    "front-end"
+    "front-end","mofron"
   ],
   "author": "simparts",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/simpart/mofron-comp-table/issues"
+    "url": "https://github.com/mofron/mofron-comp-table/issues"
   },
-  "homepage": "https://github.com/simpart/mofron-comp-table#readme"
+  "homepage": "https://github.com/mofron/mofron-comp-table#readme"
 }

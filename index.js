@@ -1,25 +1,41 @@
 /**
  * @file mofron-comp-table/index.js
  * @brief table component for mofron
- * @author simpart
+ * @license MIT
  */
-const mf   = require("mofron");
 const Text = require("mofron-comp-text");
+const comutl = mofron.util.common;
 
-mf.comp.Table = class extends mf.Component {
+module.exports = class extends mofron.class.Component {
     /**
      * initialize table component
      * 
-     * @param (mixed) column parameter
-     *                object: component option
+     * @param (mixed) 'column' parameter
+     *                key-value: component config
+     * @short head
      * @type private
      */
-    constructor (po) {
+    constructor (prm) {
         try {
             super();
             this.name("Table");
-            this.prmMap("column");
-            this.prmOpt(po);
+            this.shortForm("head");
+            /* init config */
+            this.confmng().add("head", { type: "Component", list: true });
+	    let thead_ini = new mofron.class.Dom({ tag: "thead", component: this, child: new mofron.class.Dom("tr", this) });
+	    this.confmng().add("thead", { type: "Dom", init: thead_ini });
+	    this.confmng().add("contents", { type: "array", list: true });
+	    this.confmng().add("contsopt", { type: "object", list: true });
+            this.confmng().add("insertType", { type: "string", init: "row", select: ["column","row"] });
+	    this.confmng().add("width", { type: "object", init: { width: undefined, option: undefined } });
+	    this.confmng().add("columnWidth", { type: "size" });
+	    this.confmng().add("height", { type: "object", init: { height: undefined, option: undefined } });
+            this.confmng().add("rowHeight", { type: "size" });
+            
+	    /* set config */
+	    if (undefined !== prm) {
+                this.config(prm);
+	    }
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -34,12 +50,12 @@ mf.comp.Table = class extends mf.Component {
     initDomConts () {
         try {
             super.initDomConts("table");
-            this.styleTgt(this.target());
-            this.eventTgt(this.target());
+            this.styleDom(this.childDom());
+            this.eventDom(this.childDom());
             
-            let tbody  = new mf.Dom("tbody", this); 
-            this.target().child([this.thead(), tbody]);
-            this.target(tbody);
+            let tbody = new mofron.class.Dom("tbody", this); 
+            this.childDom().child([this.confmng("thead"), tbody]);
+            this.childDom(tbody);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -47,54 +63,25 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * init size
+     * set column width,row height
      *
-     * @type private
+     * @private
      */
     beforeRender () {
         try {
-            super.beforeRender();
-            if (null !== this.width()) {
-                this.width(this.width());
-            }
-            if (null !== this.rowHeight()) {
-                this.rowHeight(this.rowHeight());
-            }
-        } catch (e) {
+	    super.beforeRender();
+            this.build();
+	} catch (e) {
             console.error(e.stack);
             throw e;
-        }
+	}
     }
     
     /**
-     * get thead dom
+     * head contents setter/getter
      * 
-     * @param (mf.Dom) dom object
-     * @return (object) thead dom 
-     * @type private
-     */
-    thead (prm) {
-        try {
-            if (undefined === prm) {
-                if (undefined === this.m_thead) {
-                    let thd = new mf.Dom("thead", this);
-                    thd.addChild(new mf.Dom("tr", this));
-                    this.thead(thd);
-                }
-                return this.m_thead;
-            }
-            this.m_thead = prm;
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
-    /**
-     * head contents
-     * 
-     * @param (mixed) component: head contents
-     *                array: head contents list
+     * @param (array) head contents list [mofron.class.Component,..]
+     *                undefined: call as getter
      * @return (array) head contents
      * @type parameter
      */
@@ -102,20 +89,22 @@ mf.comp.Table = class extends mf.Component {
         try {
             if (undefined === prm) {
                 /* getter */
-                return this.arrayMember("head");
+                return this.confmng("head");
             }
+	    if (false === Array.isArray(prm)) {
+                throw new Error("invalid parameter");
+	    }
             /* setter */
-            let tgt_buf = this.target();
-            let tr = this.thead().child()[0];
-            
+            let dom_buf = this.childDom();
+            let tr      = this.confmng("thead").child()[0];
             for (let pidx in prm) {
-                let th = new mf.Dom("th",this);
-                tr.addChild(th);
-                this.target(th);
+                let th = new mofron.class.Dom("th",this);
+                tr.child(th);
+                this.childDom(th);
                 this.child([prm[pidx]]);
             }
-            this.target(tgt_buf);
-            this.arrayMember("head", "Component", prm);
+            this.childDom(dom_buf);
+            this.confmng("head", prm);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -123,117 +112,47 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * column contents
+     * column contents setter/getter
      *
-     * @param (array) column contents
-     * @return (array) column contents
+     * @param (mixed) mofron.class.Component: column contents 
+     *                array: column contents list [mofron.class.Component,..]
+     *                undefined: call as getter
+     * @return (array) column contents list
      * @type parameter
      */
-    column (prm) {
+    column (prm, opt) {
         try {
-            if (undefined === prm) {
+	    this.insertType("column");
+	    if (undefined === prm) {
                 /* getter */
-                return this.m_columns;
-            }
-            /* setter */
-            prm = this.chkConts(prm);
-            let max_len = 0;
-            for (let pidx in prm) {
-                if (max_len < prm[pidx].length) {
-                    max_len = prm[pidx].length
-                }
-            }
-            
-            let tgt_buf = this.target();
-            for (let pidx=0; pidx < max_len ;pidx++) {
-                let tr = new mf.Dom("tr", this);
-                tgt_buf.addChild(tr);
-                for (let pidx2=0; pidx2 < prm.length ;pidx2++) {
-                    let td = new mf.Dom("td", this);
-                    tr.addChild(td);
-                    this.target(td);
-                    if (undefined !== prm[pidx2][pidx]) {
-                        this.addChild(prm[pidx2][pidx]);
-                    }
-                }
-            }
-            this.target(tgt_buf);
-            this.m_columns = prm;
+		return this.confmng("contents");
+	    }
+	    this.confmng("contents", (true === Array.isArray(prm)) ? prm : [prm]);
+	    this.confmng("contsopt", (undefined === opt) ? {} : opt);
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
-    
-    /**
-     * insert column
-     * 
-     * @param (array) column contents
-     * @param (number) insert index
-     * @type function
-     */
-    insertColumn (prm, idx) {
-        try {
-            
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
-    /**
-     * delete column
-     *
-     * @param (number) delete index
-     * @type function
-     */
-    deleteColumn (idx) {
-        try {
-        
-        } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
+
     /**
      * row contents
      *
-     * @param (array) row contents
-     * @return (array) row contents
+     * @param (mixed) mofron.class.Component: column contents 
+     *                array: column contents list [mofron.class.Component,..]
+     *                undefined: call as getter
+     * @return (array) row contents list
      * @type parameter
      */
-    row (prm) {
+    row (prm, opt) {
         try {
+            this.insertType("row");
             if (undefined === prm) {
                 /* getter */
-                return this.m_rows;
+                return this.confmng("contents");
             }
-            /* setter */
-            let len = 0;
-            for (let len_idx in prm) {
-                if (len < prm[len_idx].length) {
-                    len = prm[len_idx].length;
-                }
-            }
-            
-            prm = this.chkConts(prm);
-            let tgt_buf = this.target();
-            for (let pidx in prm) {
-                let tr = new mf.Dom("tr", this);
-                tgt_buf.addChild(tr);
-                
-                for (let pidx2=0; pidx2 < len ;pidx2++) {
-                    let td = new mf.Dom("td", this);
-                    tr.addChild(td);
-                    this.target(td);
-                    if (undefined !== prm[pidx][pidx2]) {
-                        this.addChild(prm[pidx][pidx2]);
-                    }
-                }
-            }
-            this.target(tgt_buf);
-            this.m_rows = prm;
+            this.confmng("contents", (true === Array.isArray(prm)) ? prm : [prm]);
+	    this.confmng("contsopt", (undefined === opt) ? {} : opt);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -241,15 +160,51 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * insert row
+     * insert type setter/getter
      * 
-     * @param (array) row contents
+     * @param (string) insert type ("column","row")
+     *                 undefined: call as getter
+     * @return (string) insert type
+     * @type parameter
+     */
+    insertType (prm) {
+        try {
+            return this.confmng("insertType",prm);
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+	}
+    }
+    
+    /**
+     * insert a column/row
+     * 
+     * @param (array) table contents list [mofron.class.Component,..]
      * @param (number) insert index
+     *                 undefined: insert at the end
      * @type function
      */
-    insertRow (prm, idx) {
+    insert (prm, idx) {
         try {
-            
+	    /* check parameter */
+	    if (false === Array.isArray(prm)) {
+                throw new Error("invalid parameter");
+	    }
+            for (let pidx in prm) {
+                if (false === comutl.iscmp(prm[pidx])) {
+                    throw new Error("invalid parameter element");
+		}
+	    }
+            if (undefined === idx) {
+	        /* insert at the end */
+                this.confmng("contents", prm);
+	    } else {
+                let conts = this.confmng("contents");
+		conts.splice(idx, 0 , prm);
+            }
+	    if (true === this.isExists()) {
+                this.insertDom(prm,idx);
+	    }
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -257,14 +212,87 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * delete row
+     * insert contents to dom
+     * 
+     * @param (array) table contents [mofron.class.Component,..]
+     * @param (number) insert index
+     *                 undefined: insert at the end
+     * @type private
+     */
+    insertDom (prm, idx) {
+        try {
+	    let dom_buf = this.childDom();
+            if ("row" === this.insertType()) {
+	        /* insert row contents */
+	        let r_tr = new mofron.class.Dom("tr", this);
+		for (let pidx in prm) {
+		    let r_td = new mofron.class.Dom("td", this);
+		    if (0 == pidx) {
+		        r_td.style({ width: this.columnWidth() });
+                    }
+	            r_tr.child(r_td);
+                    this.childDom(r_td);
+                    if (undefined !== prm[pidx]) {
+                        this.child(prm[pidx]);
+                    }
+                }
+                dom_buf.child(r_tr, idx);
+	        if (undefined === idx) {
+                    r_tr.push({ target: dom_buf.getRawDom() });
+	        } else {
+                    r_tr.push({ target: dom_buf.child()[idx+1].getRawDom(), position: "beforebegin" });
+                }
+	    } else {
+	        /* insert column contents */
+                let tr_lst = dom_buf.child();
+		for (let pidx in prm) {
+		    let c_td = new mofron.class.Dom("td", this);
+		    c_td.style({ height: this.rowHeight() });
+		    this.childDom(c_td);
+		    if (undefined !== prm[pidx]) {
+                        this.child(prm[pidx]);
+		    }
+                    tr_lst[pidx].child(c_td, idx);
+		    if (undefined === idx) {
+                        c_td.push({ target: tr_lst[pidx].getRawDom() });
+                    } else {
+                        c_td.push({ target: tr_lst[pidx].child()[idx+1].getRawDom(), position: "beforebegin" });
+                    }
+		}
+	    }
+	    this.childDom(dom_buf);
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+    
+    /**
+     * delete a column/row
      *
      * @param (number) delete index
      * @type function
      */
-    deleteRow (idx) {
+    delete (idx) {
         try {
-            
+	    /* check parameter */
+	    let conts = this.confmng("contents");
+	    if (undefined === conts[idx]) {
+                throw new Error("invalid parameter");
+	    }
+	    /* destroy component */
+            for (let cidx in conts[idx]) {
+	        conts[idx][cidx].destroy();
+            }
+	    /* destroy 'tr' dom */
+	    if ("row" === this.insertType()) {
+                this.childDom().child()[idx].destroy();
+            } else {
+                let chd = this.childDom().child();
+		for (let cidx in chd) {
+                    chd[cidx].child()[idx].destroy();
+		}
+	    }
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -272,44 +300,99 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * check contents
+     * column/row count getter
      * 
-     * @param (array) table contents
-     * @return (array) table contents
+     * @return (number) column/row count
+     * @type function
+     */
+    count () {
+        try {
+            return this.confmng("contents").length;
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+	}
+    }
+    
+    /**
+     * add column contents
+     * 
      * @type private
      */
-    chkConts (prm) {
+    build () {
         try {
-            if (false === Array.isArray(prm)) {
-                throw new Error("invalid parameter");
-            }
-            for (let pidx in prm) {
-                if (false === Array.isArray(prm[pidx])) {
-                    prm[pidx] = [prm[pidx]];
-                }
-                for (let pidx2 in prm[pidx]) {
-                    if (false === mf.func.isComp(prm[pidx][pidx2])) {
-                        throw new Error("invalid parameter");
+	    let conts   = this.confmng("contents");
+	    let opt     = this.confmng("contsopt");
+	    let dom_buf = this.childDom();
+            
+            /* adjustments length of contents */
+	    let m_len = 0;
+            for (let len_idx in conts) {
+                if (m_len < conts[len_idx].length) {
+                    m_len = conts[len_idx].length;
+		}
+	    }
+	    for (let len_idx2 in conts) {
+                while (m_len > conts[len_idx2].length) {
+                    conts[len_idx2].push(null);
+		}
+	    }
+            
+	    if ("row" === this.insertType()) {
+	        /* set row contents */
+	        for (let cidx in conts) {
+                    let tr = new mofron.class.Dom("tr", this);
+		    /* set height */
+                    tr.style({ height: (undefined !== opt[cidx].height) ? opt[cidx].height : this.rowHeight() });
+                    dom_buf.child(tr);
+                    for (let cidx2 in conts[cidx]) {
+                        let td = new mofron.class.Dom("td", this);
+			td.style({ width: this.columnWidth() });
+                        tr.child(td);
+                        this.childDom(td);
+			if (null !== conts[cidx][cidx2]) {
+                            this.child(conts[cidx][cidx2]);
+			}
                     }
+		}
+	    } else {
+	        /* set column contents */
+                let dom_buf = this.childDom();
+                for (let cidx=0; cidx < conts[0].length; cidx++) {
+	            let tr = new mofron.class.Dom("tr", this);
+		    tr.style({ height: this.rowHeight() });
+	            dom_buf.child(tr);
+                    for (let cidx2 in conts) {
+		        let td = new mofron.class.Dom("td", this);
+			if (0 === cidx) {
+                            td.style({ width: (undefined !== opt[cidx2].width) ? opt[cidx2].width : this.columnWidth() });
+			}
+                        tr.child(td);
+		        this.childDom(td);
+			if (null !== conts[cidx2][cidx]) {
+                            this.child(conts[cidx2][cidx]);
+			}
+		    }
                 }
-            }
-            return prm;
-        } catch (e) {
+	    }
+	    this.childDom(dom_buf);
+	} catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
     
     /**
-     * border width
+     * border width setter/getter
      *
-     * @param (string (size)) border width
+     * @param (string(size)) border width
+     *                       undefined: call as getter
      * @return (string (size)) border width
      * @type parameter
      */
     border (prm) {
         try {
-            return this.target().parent().attr(
+            return this.childDom().parent().attrs(
                 (undefined === prm) ? "border" : { border : prm }
             );
         } catch (e) {
@@ -319,7 +402,7 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * table frame type
+     * table frame type setter/getter
      *
      * @param (string) frame type ["void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box", "border"]
      * @return (string) frame type
@@ -327,7 +410,7 @@ mf.comp.Table = class extends mf.Component {
      */
     frame (prm) {
         try {
-            return this.target().parent().attr(
+            return this.childDom().parent().attrs(
                 (undefined === prm) ? "frame" : { frame : prm }
             );
         } catch (e) {
@@ -337,32 +420,19 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * table inner border type
+     * table inner border type setter/getter
      *
      * @param (string) rule value ["none", "groups", "rows", "cols", "all"]
+     *                 undefined: call as getter
      * @return (string) rule value
      * @type parameter
      */
     rules (prm) {
         try {
-            return this.target().parent().attr(
+            return this.childDom().parent().attrs(
                 (undefined === prm) ? "rules" : { rules : prm }
             );
         } catch (e) {
-            console.error(e.stack);
-            throw e;
-        }
-    }
-    
-    /**
-     * column width
-     *
-     * @param (array) column width
-     * @param (option) style option
-     * @type parameter
-     */
-    column_width (prm, opt) {
-        try { this.width(prm,opt); } catch (e) {
             console.error(e.stack);
             throw e;
         }
@@ -377,28 +447,7 @@ mf.comp.Table = class extends mf.Component {
      */
     width (prm, opt) {
         try {
-            if (undefined === prm) {
-                return (undefined === this.m_width) ? null : this.m_width;
-            }
-            this.m_width = prm;
-            if ( (undefined !== this.m_columns) || (undefined !== this.m_rows) ) {
-                let cols = this.target().child()[0].child();
-                if (true === Array.isArray(prm)) {
-                    for (let pidx in prm) {
-                        cols[pidx].style({ width: prm[pidx] }, opt);
-                    }
-                } else {
-                    let siz     = mf.func.getSize(prm);
-                    let set_siz = siz.value() / this.colCount();
-                    let col_lst = this.target().child();
-                    for (let cidx in col_lst) {
-                        let tds = col_lst[cidx].child();
-                        for (let cidx2 in tds) {
-                            tds[cidx2].style({ width: set_siz + siz.type() }, opt);
-                        }
-                    }
-                }
-            }
+	    return this.rootDom()[0].style({ width: prm }, opt);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -406,21 +455,31 @@ mf.comp.Table = class extends mf.Component {
     }
     
     /**
-     * column count
-     *
-     * @return (number) column count
-     * @type function
+     * column width
+     * 
+     * @param (string(size)) column width
+     * @return (string(size)) column width
+     * @type parameter
      */
-    colCount () {
+    columnWidth (prm) {
         try {
-            let ret = 0;
-            let trs = this.target().child();
-            for (let tr_idx in trs) {
-                if (ret < trs[tr_idx].child().length) {
-                   ret = trs[tr_idx].child().length;
-                }
-            }
-            return ret;
+            return this.confmng("columnWidth");
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+        }
+    }
+
+    /**
+     * table height
+     *
+     * @param (string(size)) height size
+     * @return (string(size)) height size
+     * @type parameter
+     */
+    height (prm, opt) {
+        try {
+            return this.rootDom()[0].style({ height: prm }, opt);
         } catch (e) {
             console.error(e.stack);
             throw e;
@@ -430,29 +489,17 @@ mf.comp.Table = class extends mf.Component {
     /**
      * row height
      *
-     * @param (string (size)) row height
-     * @return (string (size)) row height
+     * @param (string(size)) row height
+     * @return (string(size)) row height
      * @type parameter
      */
     rowHeight (prm) {
         try {
-            let trs = this.target().child();
-            if (undefined === prm) {
-                 /* getter */
-                 return (undefined === this.m_rowhei) ? null : this.m_rowhei;
-            }
-            /* setter */
-            this.m_rowhei = prm;
-            if ( (undefined !== this.m_columns) || (undefined !== this.m_rows) ) {
-                for (let tidx in trs) {
-                    trs[tidx].style({ "height" : prm });
-                }
-            }
+            return this.confmng("rowHeight", prm);
         } catch (e) {
             console.error(e.stack);
             throw e;
         }
     }
 }
-module.exports = mf.comp.Table;
 /* end of file */
