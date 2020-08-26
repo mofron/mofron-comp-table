@@ -11,10 +11,10 @@ npm install mofron mofron-comp-table
 
 # Sample
 ```html
-<require>
+<setting>
     <tag module="mofron-comp-table">Table</tag>
     <tag module="mofron-comp-text">Text</tag>
-</require>
+</setting>
 
 <Table border=1 frame=box rowHeight=0.5rem>
     <column width="1rem">
@@ -51,8 +51,7 @@ npm install mofron mofron-comp-table
 
 | Short<br>Form | Parameter Name | Type | Description |
 |:-------------:|:---------------|:-----|:------------|
-| | beforeRender | ||
-|◯| head | array | head contents list [mofron.class.Component,..] |
+| | beforeRender | ||| ◯  | head | array | head contents list [mofron.class.Component,..] |
 | | | | undefined: call as getter |
 | | column | mixed | mofron.class.Component: column contents  |
 | | | | array: column contents list [mofron.class.Component,..] |
@@ -66,8 +65,7 @@ npm install mofron mofron-comp-table
 | | | number | insert index |
 | | | | undefined: insert at the end |
 | | delete | number | delete index |
-| | count | ||
-| | border | string(size) | border width |
+| | count | ||| | border | string(size) | border width |
 | | | | undefined: call as getter |
 | | frame | string | frame type ["void", "above", "below", "hsides", "vsides", "lhs", "rhs", "box", "border"] |
 | | rules | string | rule value ["none", "groups", "rows", "cols", "all"] |

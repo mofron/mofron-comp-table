@@ -18,7 +18,7 @@ module.exports = class extends mofron.class.Component {
     constructor (prm) {
         try {
             super();
-            this.name("Table");
+            this.modname("Table");
             this.shortForm("head");
             /* init config */
             this.confmng().add("head", { type: "Component", list: true });

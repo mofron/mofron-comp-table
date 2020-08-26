@@ -1,7 +1,7 @@
-<require>
+<setting>
     <tag module="mofron-comp-table">Table</tag>
     <tag module="mofron-comp-text">Text</tag>
-</require>
+</setting>
 
 <Table border=1 frame=box rowHeight=0.5rem>
     <column width="1rem">
