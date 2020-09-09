@@ -28,7 +28,7 @@ module.exports = class extends mofron.class.Component {
 	    this.confmng().add("contsopt", { type: "object", list: true });
             this.confmng().add("insertType", { type: "string", init: "row", select: ["column","row"] });
 	    this.confmng().add("width", { type: "object", init: { width: undefined, option: undefined } });
-	    this.confmng().add("columnWidth", { type: "size" });
+	    this.confmng().add("columnWidth", { type: "size", list: true });
 	    this.confmng().add("height", { type: "object", init: { height: undefined, option: undefined } });
             this.confmng().add("rowHeight", { type: "size" });
             
@@ -224,18 +224,24 @@ module.exports = class extends mofron.class.Component {
 	    let dom_buf = this.childDom();
             if ("row" === this.insertType()) {
 	        /* insert row contents */
-	        let r_tr = new mofron.class.Dom("tr", this);
-		for (let pidx in prm) {
-		    let r_td = new mofron.class.Dom("td", this);
-		    if (0 == pidx) {
-		        r_td.style({ width: this.columnWidth() });
+                let r_tr = new mofron.class.Dom({
+                    tag: "tr", component: this,
+                    style: { height: this.rowHeight() }
+                });
+                
+                let col_wid = this.columnWidth();
+                for (let pidx in prm) {
+                    let r_td = new mofron.class.Dom("td", this);
+                    if ((null !== col_wid) && (undefined !== col_wid[pidx])) {
+                        r_td.style({ width: col_wid[pidx] });
                     }
-	            r_tr.child(r_td);
+                    r_tr.child(r_td);
                     this.childDom(r_td);
                     if (undefined !== prm[pidx]) {
                         this.child(prm[pidx]);
                     }
                 }
+                
                 dom_buf.child(r_tr, idx);
 	        if (undefined === idx) {
                     r_tr.push({ target: dom_buf.getRawDom() });
@@ -463,7 +469,7 @@ module.exports = class extends mofron.class.Component {
      */
     columnWidth (prm) {
         try {
-            return this.confmng("columnWidth");
+            return this.confmng("columnWidth",prm);
 	} catch (e) {
             console.error(e.stack);
             throw e;
