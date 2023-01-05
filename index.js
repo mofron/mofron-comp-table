@@ -23,15 +23,17 @@ module.exports = class extends mofron.class.Component {
             /* init config */
             this.confmng().add("head", { type: "Component", list: true });
 	    let thead_ini = new mofron.class.Dom({ tag: "thead", component: this, child: new mofron.class.Dom("tr", this) });
-	    this.confmng().add("thead", { type: "Dom", init: thead_ini });
-	    this.confmng().add("contents", { type: "array", list: true });
-	    this.confmng().add("contsopt", { type: "object", list: true });
-            this.confmng().add("insertType", { type: "string", init: "row", select: ["column","row"] });
-	    this.confmng().add("width", { type: "object", init: { width: undefined, option: undefined } });
+	    this.confmng().add("thead",       { type: "Dom", init: thead_ini });
+	    this.confmng().add("contents",    { type: "array", list: true });
+	    this.confmng().add("contsopt",    { type: "object", list: true });
+            this.confmng().add("insertType",  { type: "string", init: "row", select: ["column","row"] });
+	    this.confmng().add("width",       { type: "object", init: { width: undefined, option: undefined } });
 	    this.confmng().add("columnWidth", { type: "size", list: true });
-	    this.confmng().add("height", { type: "object", init: { height: undefined, option: undefined } });
-            this.confmng().add("rowHeight", { type: "size" });
-            
+	    this.confmng().add("height",      { type: "object", init: { height: undefined, option: undefined } });
+            this.confmng().add("rowHeight",   { type: "size" });
+            this.confmng().add('align',       { type: 'array', init: [] })
+            this.confmng().add("baseColor",   { type: "color", init: [255,255,255]})
+
 	    /* set config */
 	    if (undefined !== prm) {
                 this.config(prm);
@@ -98,7 +100,11 @@ module.exports = class extends mofron.class.Component {
             let dom_buf = this.childDom();
             let tr      = this.confmng("thead").child()[0];
             for (let pidx in prm) {
-                let th = new mofron.class.Dom("th",this);
+                let th    = new mofron.class.Dom("th",this);
+                let align = this.confmng("align");
+		if (undefined !== align[pidx]) {
+                    th.attrs({ 'align': align[pidx] });
+		}
                 tr.child(th);
                 this.childDom(th);
                 this.child([prm[pidx]]);
@@ -226,7 +232,10 @@ module.exports = class extends mofron.class.Component {
 	        /* insert row contents */
                 let r_tr = new mofron.class.Dom({
                     tag: "tr", component: this,
-                    style: { height: this.rowHeight() }
+                    style: {
+		        'height':     this.rowHeight(),
+			'background': this.baseColor().toString()
+                    }
                 });
                 
                 let col_wid = this.columnWidth();
@@ -348,12 +357,25 @@ module.exports = class extends mofron.class.Component {
 	        /* set row contents */
 	        for (let cidx in conts) {
                     let tr = new mofron.class.Dom("tr", this);
+                    tr.style({ 'background': this.baseColor().toString() });
 		    /* set height */
-                    tr.style({ height: (undefined !== opt[cidx].height) ? opt[cidx].height : this.rowHeight() });
+		    let set_hei = this.rowHeight();
+		    if (undefined !== opt[cidx]) {
+                        set_hei = (undefined !== opt[cidx].height) ? opt[cidx].height : this.rowHeight();
+		    }
+                    tr.style({ height: set_hei });
                     dom_buf.child(tr);
                     for (let cidx2 in conts[cidx]) {
                         let td = new mofron.class.Dom("td", this);
-			td.style({ width: this.columnWidth() });
+			if (undefined !== this.columnWidth()[cidx2]) {
+			    td.style({ width: this.columnWidth()[cidx2] });
+			}
+			/* align */
+                        let align = this.confmng('align');
+			if (undefined !== align[cidx2]) {
+                            td.attrs({ 'align': align[cidx2] });
+			}
+
                         tr.child(td);
                         this.childDom(td);
 			if (null !== conts[cidx][cidx2]) {
@@ -386,6 +408,15 @@ module.exports = class extends mofron.class.Component {
             console.error(e.stack);
             throw e;
         }
+    }
+
+    align (prm) {
+        try {
+            return this.confmng('align', prm);
+	} catch (e) {
+            console.error(e.stack);
+            throw e;
+	}
     }
     
     /**
@@ -506,6 +537,24 @@ module.exports = class extends mofron.class.Component {
             console.error(e.stack);
             throw e;
         }
+    }
+
+    accentColor (prm) {
+        try {
+            this.rootDom()[0].style({ 'border-color': comutl.getcolor(prm).toString() });
+	} catch (e) {
+	    console.error(e.stack);
+            throw e;
+	}
+    }
+
+    baseColor (prm) {
+        try {
+            return this.confmng('baseColor', prm);
+	} catch (e) {
+	    console.error(e.stack);
+            throw e;
+	}
     }
 }
 /* end of file */
