@@ -5,6 +5,7 @@
  */
 const Text = require("mofron-comp-text");
 const comutl = mofron.util.common;
+const cmputl = mofron.util.component;
 
 module.exports = class extends mofron.class.Component {
     /**
@@ -31,8 +32,8 @@ module.exports = class extends mofron.class.Component {
 	    this.confmng().add("columnWidth", { type: "size", list: true });
 	    this.confmng().add("height",      { type: "object", init: { height: undefined, option: undefined } });
             this.confmng().add("rowHeight",   { type: "size" });
-            this.confmng().add('align',       { type: 'array', init: [] })
-            this.confmng().add("baseColor",   { type: "color", init: [255,255,255]})
+            this.confmng().add('align',       { type: 'array', init: [] });
+            this.confmng().add("baseColor",   { type: "color", init: [255,255,255]});
 
 	    /* set config */
 	    if (undefined !== prm) {
@@ -227,6 +228,31 @@ module.exports = class extends mofron.class.Component {
      */
     insertDom (prm, idx) {
         try {
+	    let bf_render = (prm) => {
+                try {
+                    for (let idx in prm) {
+                        cmputl.theme(prm[idx], this.theme());
+                        cmputl.initmconf(prm[idx], "layout");
+                        prm[idx].beforeRender();
+                        cmputl.initmconf(prm[idx], "zsp_effect");
+                    }
+		} catch (e) {
+		    console.error(e.stack);
+                    throw e;
+		}
+	    }
+            let af_render = (prm) => {
+                try {
+                    for (let pidx in prm) {
+                        prm[pidx].afterRender();
+                        cmputl.initmconf(prm[pidx], "effect");
+                        cmputl.initmconf(prm[pidx], "event");
+                    }
+                } catch (e) {
+                    console.error(e.stack);
+                    throw e;
+                }
+            }
 	    let dom_buf = this.childDom();
             if ("row" === this.insertType()) {
 	        /* insert row contents */
@@ -251,11 +277,24 @@ module.exports = class extends mofron.class.Component {
                     }
                 }
                 
+                /* process for before render */
+                bf_render(prm);
+                 
+                /* render */
                 dom_buf.child(r_tr, idx);
 	        if (undefined === idx) {
                     r_tr.push({ target: dom_buf.getRawDom() });
 	        } else {
                     r_tr.push({ target: dom_buf.child()[idx+1].getRawDom(), position: "beforebegin" });
+                }
+                
+                /* process for after render */
+                af_render(prm);
+                
+                for (let pidx_3 in prm) {
+                    prm[pidx_3].afterRender();
+                    cmputl.initmconf(prm[pidx_3], "effect");
+                    cmputl.initmconf(prm[pidx_3], "event");
                 }
 	    } else {
 	        /* insert column contents */
@@ -268,11 +307,16 @@ module.exports = class extends mofron.class.Component {
                         this.child(prm[pidx]);
 		    }
                     tr_lst[pidx].child(c_td, idx);
+
+                    /* process for before render */
+                    bf_render(prm);
 		    if (undefined === idx) {
                         c_td.push({ target: tr_lst[pidx].getRawDom() });
                     } else {
                         c_td.push({ target: tr_lst[pidx].child()[idx+1].getRawDom(), position: "beforebegin" });
                     }
+                    /* process for after render */
+                    af_render(prm);
 		}
 	    }
 	    this.childDom(dom_buf);
@@ -380,6 +424,7 @@ module.exports = class extends mofron.class.Component {
                         this.childDom(td);
 			if (null !== conts[cidx][cidx2]) {
                             this.child(conts[cidx][cidx2]);
+			    //cmputl.render(conts[cidx][cidx2]);
 			}
                     }
 		}
