@@ -265,9 +265,13 @@ module.exports = class extends mofron.class.Component {
                 });
                 
                 let col_wid = this.columnWidth();
+                let align   = this.confmng("align");
                 for (let pidx in prm) {
                     let r_td = new mofron.class.Dom("td", this);
                     if ((null !== col_wid) && (undefined !== col_wid[pidx])) {
+                        if (undefined !== align[pidx]) {
+                            r_td.attrs({ 'align': align[pidx] });
+                        }
                         r_td.style({ width: col_wid[pidx] });
                     }
                     r_tr.child(r_td);

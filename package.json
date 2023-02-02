@@ -1,6 +1,6 @@
 {
   "name": "mofron-comp-table",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "table Component for mofron",
   "main": "index.js",
   "scripts": {
