@@ -293,7 +293,7 @@ module.exports = class extends mofron.class.Component {
                 }
                 
                 /* process for after render */
-                af_render(prm);
+                //af_render(prm);
                 
                 for (let pidx_3 in prm) {
                     prm[pidx_3].afterRender();
